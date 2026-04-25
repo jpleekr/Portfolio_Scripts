@@ -10,15 +10,22 @@
 
 ### Ayla
 - 2D 플렛포머 게임 프로젝트
+- 전체 프로젝트 : https://github.com/YSB1026/Ayla
+- 플레이 영상 : https://www.youtube.com/watch?v=Z-XyjMLT0rk (여기서 공모전을 목표로 더 진행하였으나 개인사정으로 인하여 미완성)
+- 노션 링크 : https://www.notion.so/2025-11-02-29f1d6fe70d980908ffac6400efa4b23
 - 캐릭터 이동, 카메라, 입력 시스템 구현
 - Cinemachine 기반 카메라 구조 적용
 
 ### LastProject_CardGame
 - 하스스톤 및 유희왕을 기반으로한 카드 게임
+- 전체 프로젝트 : https://github.com/J-SangWon/LastProject_CardGame
 - 카드 데이터 구조 및 전투 시스템 구현
 - ScriptableObject 기반 카드 데이터 구조 설계
 - 카드 효과 시스템 (Ability 구조) 구현
 
 ### AbsoluteZero
-- 더 롱 가크를 모티브로한 3D 서바이벌 게임
-- 게임 플레이 핵심 로직 및 시스템 설계 참여
+- 더 롱 다크를 모티브로한 3D 서바이벌 게임
+- 전체 프로젝트 : https://github.com/Eoryeong/AbsoluteZero
+- 게임 플레이 핵심 로직 및 시스템 설계
+- 상태 기반 행동 처리 (State 패턴)
+- 시간에 따른 상태 게이지 관리(배고픔, 추위등)
