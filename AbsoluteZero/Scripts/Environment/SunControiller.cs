@@ -3,7 +3,7 @@ using UnityEngine;
 public class SunControiller : MonoBehaviour
 {
 	[Header("Sun Settings")]
-	[SerializeField] private Light sunLight; 
+	[SerializeField] private Light sunLight; //현재레벨에 썬라이트
 	private float sunBaseAngle = -90f; // 자정 기준 각도 (동쪽 지평선 아래)
 
 
