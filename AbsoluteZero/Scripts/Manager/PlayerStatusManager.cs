@@ -1,306 +1,333 @@
 using UnityEngine;
 
+/// <summary>
+/// 플레이어의 생존 스탯(체력, 허기, 갈증, 정신력, 추위)을 관리
+/// </summary>
 public class PlayerStatusManager : SingletonBehaviour<PlayerStatusManager>
 {
     private PlayerControll player => PlayerManager.Instance.PlayerController;
 
-	#region 스테이터스 정보
-	[Header("스테이터스 최대치")]
-	[SerializeField] private float maxHp = 100f;
+    #region 최대 스탯
+
+    [Header("스테이터스 최대치")]
+    [SerializeField] private float maxHp = 100f;
     [SerializeField] private float maxHunger = 100f;
     [SerializeField] private float maxThirst = 100f;
-	[SerializeField] private float maxMentality = 100f;
+    [SerializeField] private float maxMentality = 100f;
     [SerializeField] private float maxCold = 100f;
 
-	private float currentHp;
-    private float currentHunger;
-    private float currentThirst;
-	private float currentMentality;
-    private float currentCold;
-
-    [Header("스테이터스 감소율")]
-	[SerializeField] private float hungerDecreaseRate = 1f;
-    [SerializeField] private float thirstDecreaseRate = 1f;
-	[SerializeField] private float mentalityDecreaseRate = 1f;
-	[SerializeField] private float coldDecreascRate = 1f;
-
-	[Header("스테이터스별 데미지")]
-	[SerializeField] private float hungerDamage = 15f;
-	[SerializeField] private float thirstDamage = 10f;
-	[SerializeField] private float mentalityDamage = 10f;
-	[SerializeField] private float coldDamage = 20f;
-	#endregion
-
-	#region 쿨타임
-	[Header("내부 쿨타임")]
-	[SerializeField] private float statusCoolDown = 1.0f;
-	[SerializeField] private float hungerDamageCoolDown = 1.0f;	
-	[SerializeField] private float thirstDamageCoolDown = 1.0f;
-	[SerializeField] private float mentalityDamageCoolDown = 1.0f;
-	[SerializeField] private float coldDamageCoolDown = 1.0f;
-
-	private float statusTimer;
-	private float hungerDamageTimer;
-	private float thirstDamageTimer;
-	private float mentalityTimer;
-	private float coldrDamageTimer;
-
-	private float runDebugSpeed = 20f;
-    private float runDefaultSpeed = 8f;
-    private float runCurrSpeed = 8f;
     #endregion
 
-    #region getter
-    public float CurrentHp { get { return currentHp; } }
-	public float CurrentHpPercent { get { return currentHp / maxHp; } }
-	public float CurrentHunger { get { return currentHunger; } }  
-	public float CurrentHungerPercent { get { return currentHunger / maxHunger; } }  
-    public float CurrentThirst { get { return currentThirst; } }
-    public float CurrentThirstPercent { get { return currentThirst / maxThirst; } }
-	public float CurrentMentality { get { return currentMentality; } }
-	public float CurrentMentalityPercent { get { return currentMentality / maxMentality; } }
-    public float CurrentCold { get { return currentCold; } }
-    public float CurrentColdPercent { get { return currentCold / maxCold; } }
-	#endregion
+    #region 현재 스탯
 
-	[HideInInspector] public bool isDead = false;
-	[HideInInspector] public bool isHunger = false;
-	[HideInInspector] public bool isThirst = false;
-	[HideInInspector] public bool isTired = false;
-	[HideInInspector] public bool isCold = false;
+    private float currentHp;
+    private float currentHunger;
+    private float currentThirst;
+    private float currentMentality;
+    private float currentCold;
 
-	private bool deadTrigger = false;
+    #endregion
 
-	private void Start()
-	{
+    #region 감소량
+
+    [Header("스테이터스 감소량")]
+    [SerializeField] private float hungerDecreaseRate = 1f;
+    [SerializeField] private float thirstDecreaseRate = 1f;
+    [SerializeField] private float mentalityDecreaseRate = 1f;
+    [SerializeField] private float coldDecreaseRate = 1f;
+
+    #endregion
+
+    #region 상태이상 데미지
+
+    [Header("스테이터스별 데미지")]
+    [SerializeField] private float hungerDamage = 15f;
+    [SerializeField] private float thirstDamage = 10f;
+    [SerializeField] private float mentalityDamage = 10f;
+    [SerializeField] private float coldDamage = 20f;
+
+    #endregion
+
+    #region 쿨타임
+
+    [Header("쿨타임")]
+    [SerializeField] private float statusCooldown = 1f;
+
+    [SerializeField] private float hungerDamageCooldown = 1f;
+    [SerializeField] private float thirstDamageCooldown = 1f;
+    [SerializeField] private float mentalityDamageCooldown = 1f;
+    [SerializeField] private float coldDamageCooldown = 1f;
+
+    private float statusTimer;
+
+    private float hungerDamageTimer;
+    private float thirstDamageTimer;
+    private float mentalityDamageTimer;
+    private float coldDamageTimer;
+
+    #endregion
+
+    #region 이동속도
+
+    private const float WALK_SPEED = 5f;
+    private const float SIT_SPEED = 2f;
+
+    private float runDefaultSpeed = 8f;
+    private float runDebugSpeed = 20f;
+    private float currentRunSpeed = 8f;
+
+    #endregion
+
+    #region 상태 플래그
+
+    [HideInInspector] public bool isDead;
+    [HideInInspector] public bool isHunger;
+    [HideInInspector] public bool isThirst;
+    [HideInInspector] public bool isTired;
+    [HideInInspector] public bool isCold;
+
+    private bool deadTrigger;
+
+    #endregion
+
+    #region Property
+
+    public float CurrentHp => currentHp;
+    public float CurrentHpPercent => currentHp / maxHp;
+
+    public float CurrentHunger => currentHunger;
+    public float CurrentHungerPercent => currentHunger / maxHunger;
+
+    public float CurrentThirst => currentThirst;
+    public float CurrentThirstPercent => currentThirst / maxThirst;
+
+    public float CurrentMentality => currentMentality;
+    public float CurrentMentalityPercent => currentMentality / maxMentality;
+
+    public float CurrentCold => currentCold;
+    public float CurrentColdPercent => currentCold / maxCold;
+
+    #endregion
+
+    private void Start()
+    {
         InitStatus();
-	}
-
-	private void Update()
-	{
-        UpdateStatus();
-
-        if (currentHp <= 0 && !deadTrigger)
-		{
-            deadTrigger = true;
-			player.PlayerDying();
-		}
-
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            if (runCurrSpeed == 8f)
-            {
-                runCurrSpeed = runDebugSpeed;
-            }
-            else
-            {
-                runCurrSpeed = runDefaultSpeed;
-            }
-        }
     }
 
-	private void InitStatus()
+    private void Update()
     {
-		currentHp = maxHp;
+        UpdateStatus();
+        CheckDeath();
+        DebugSpeedToggle();
+    }
+
+    /// <summary>
+    /// 스탯 초기화
+    /// </summary>
+    private void InitStatus()
+    {
+        currentHp = maxHp;
         currentHunger = maxHunger;
         currentThirst = maxThirst;
-		currentMentality = maxMentality;
+        currentMentality = maxMentality;
         currentCold = maxCold;
     }
 
+    /// <summary>
+    /// 전체 스탯 업데이트
+    /// </summary>
     private void UpdateStatus()
-	{
-		if (TimeManager.Instance.isPause)
-			return;
-
-		statusTimer += Time.deltaTime;
-
-		if(statusTimer > statusCoolDown)
-		{
-			currentHunger -= hungerDecreaseRate;
-			currentThirst -= thirstDecreaseRate;
-			currentMentality -= mentalityDecreaseRate;
-			currentCold -= coldDecreascRate;
-
-			statusTimer = 0;
-		}
-
-		HungerEvent();
-		ThirstEvent();
-		MentalityEvent();
-		ColdEvent();
-	}
-
-	private void HungerEvent()
-	{
-		if(currentHunger <= 0)
-		{
-            player.runSpeed = 5;
-            player.walkSpeed = 3;
-            player.sitSpeed = 1;
-            isHunger = true;
-            hungerDamageTimer += Time.deltaTime;
-
-			if(hungerDamageTimer > hungerDamageCoolDown)
-			{
-				TakeDamage(hungerDamage);
-				hungerDamageTimer = 0;
-			}
-
-			currentHunger = 0;
-		}
-		else
-		{
-            player.runSpeed = runCurrSpeed;
-            player.walkSpeed = 5;
-            player.sitSpeed = 2;
-            isHunger = false;
-        }
-	}
-
-	private void ThirstEvent()
-	{
-		if(currentThirst <= 0)
-		{
-            isThirst = true;
-            thirstDamageTimer += Time.deltaTime;
-
-			if (thirstDamageTimer > thirstDamageCoolDown)
-			{
-				TakeDamage(thirstDamage);
-				thirstDamageTimer = 0;
-			}
-
-			currentThirst = 0;
-		}
-		else
-		{
-            isThirst = false;
-        }
-	}
-
-	private void MentalityEvent()
-	{
-		if (currentMentality <= 0)
-		{
-            isTired = true;
-            mentalityTimer += Time.deltaTime;
-
-			if (mentalityTimer > mentalityDamageCoolDown)
-			{
-				TakeDamage(mentalityDamage);
-				mentalityTimer = 0;
-			}
-
-			currentMentality = 0;
-		}
-		else
-		{
-            isTired = false;
-        }
-	}
-
-	private void ColdEvent()
-	{
-		if(currentCold <= 0)
-		{
-            isCold = true;
-            coldrDamageTimer += Time.deltaTime;
-
-			if (coldrDamageTimer > coldDamageCoolDown)
-			{
-				TakeDamage(coldDamage);
-				coldrDamageTimer = 0;
-			}
-
-			currentCold = 0;
-		}
-		else
-		{
-            isCold = false;
-        }
-	}
-
-	public float GetHungerDecreaseRate()
-	{
-		return hungerDecreaseRate;
-	}
-
-	public void SetHungerDecreaseRate(float decreaseRate)
     {
-        hungerDecreaseRate = decreaseRate;
+        if (TimeManager.Instance.isPause)
+            return;
+
+        statusTimer += Time.deltaTime;
+
+        // 일정 시간마다 스탯 감소
+        if (statusTimer >= statusCooldown)
+        {
+            currentHunger -= hungerDecreaseRate;
+            currentThirst -= thirstDecreaseRate;
+            currentMentality -= mentalityDecreaseRate;
+            currentCold -= coldDecreaseRate;
+
+            statusTimer = 0f;
+        }
+
+        HandleHunger();
+        HandleThirst();
+        HandleMentality();
+        HandleCold();
     }
 
-	public float GetThirstDecreaseRate()
-	{
-		return thirstDecreaseRate;
-	}
-
-	public void SetThirstDecreaseRate(float decreaseRate)
-	{
-		thirstDecreaseRate = decreaseRate;
-	}
-
-	public float GetMentalityDecreaseRate()
-	{
-		return mentalityDecreaseRate;
-	}
-
-	public void SetMentalittDecreaseRate(float decreaseRate)
-	{
-		mentalityDecreaseRate = decreaseRate;
-	}
-
-	public float GetColdDecreaseRate()
-	{
-		return coldDecreascRate;
-	}
-
-	public void SetColdDecreaseRate(float decreaseRate)
-	{
-		coldDecreascRate = decreaseRate;
-	}
-
-    public void AddCurrentHunger(float addHunger)
+    /// <summary>
+    /// 공통 상태이상 처리 함수
+    /// 수치가 0 이하이면 일정 주기마다 데미지 적용
+    /// </summary>
+    private void HandleStatusDamage(
+        ref float currentValue,
+        ref bool stateFlag,
+        ref float timer,
+        float damage,
+        float cooldown)
     {
-        currentHunger += addHunger;
-        if (currentHunger > maxHunger)
-            currentHunger = maxHunger;
+        if (currentValue > 0)
+        {
+            stateFlag = false;
+            return;
+        }
 
-	}
+        currentValue = 0;
+        stateFlag = true;
 
-    public void AddCurrentThirst(float addThiirst)
-    {
-        currentThirst += addThiirst;
-        if (currentThirst > maxThirst)
-            currentThirst = maxThirst;
+        timer += Time.deltaTime;
+
+        if (timer >= cooldown)
+        {
+            TakeDamage(damage);
+            timer = 0f;
+        }
     }
 
-	public void AddCurrentMentality(float addMentality)
-	{
-		currentMentality += addMentality;
-		if(currentMentality > maxMentality)
-			currentMentality = maxMentality;
-	}
-
-    public void AddCurrentCold(float addCold)
+    /// <summary>
+    /// 허기 상태 처리
+    /// </summary>
+    private void HandleHunger()
     {
-        currentCold += addCold;
-        if (currentCold > maxCold)
-            currentCold = maxCold;
+        HandleStatusDamage(
+            ref currentHunger,
+            ref isHunger,
+            ref hungerDamageTimer,
+            hungerDamage,
+            hungerDamageCooldown);
+
+        // 허기 상태 시 이동속도 감소
+        if (isHunger)
+        {
+            player.runSpeed = 5f;
+            player.walkSpeed = 3f;
+            player.sitSpeed = 1f;
+        }
+        else
+        {
+            player.runSpeed = currentRunSpeed;
+            player.walkSpeed = WALK_SPEED;
+            player.sitSpeed = SIT_SPEED;
+        }
     }
 
-	public void TakeDamage(float damage)
-	{
-		currentHp -= damage;
-		if(currentHp <= 0)
-			isDead = transform;
-	}
+    /// <summary>
+    /// 갈증 상태 처리
+    /// </summary>
+    private void HandleThirst()
+    {
+        HandleStatusDamage(
+            ref currentThirst,
+            ref isThirst,
+            ref thirstDamageTimer,
+            thirstDamage,
+            thirstDamageCooldown);
+    }
 
-	public void Heal(float amout)
-	{
-		currentHp += amout;
-		if(currentHp > maxHp)
-			currentHp = maxHp;
-	}
+    /// <summary>
+    /// 정신력 상태 처리
+    /// </summary>
+    private void HandleMentality()
+    {
+        HandleStatusDamage(
+            ref currentMentality,
+            ref isTired,
+            ref mentalityDamageTimer,
+            mentalityDamage,
+            mentalityDamageCooldown);
+    }
+
+    /// <summary>
+    /// 추위 상태 처리
+    /// </summary>
+    private void HandleCold()
+    {
+        HandleStatusDamage(
+            ref currentCold,
+            ref isCold,
+            ref coldDamageTimer,
+            coldDamage,
+            coldDamageCooldown);
+    }
+
+    /// <summary>
+    /// 사망 체크
+    /// </summary>
+    private void CheckDeath()
+    {
+        if (currentHp > 0 || deadTrigger)
+            return;
+
+        deadTrigger = true;
+        player.PlayerDying();
+    }
+
+    /// <summary>
+    /// 디버그 속도 토글
+    /// </summary>
+    private void DebugSpeedToggle()
+    {
+        if (!Input.GetKeyDown(KeyCode.J))
+            return;
+
+        currentRunSpeed =
+            currentRunSpeed == runDefaultSpeed
+            ? runDebugSpeed
+            : runDefaultSpeed;
+    }
+
+    #region 스탯 회복
+
+    public void AddCurrentHunger(float value)
+    {
+        currentHunger = Mathf.Clamp(currentHunger + value, 0, maxHunger);
+    }
+
+    public void AddCurrentThirst(float value)
+    {
+        currentThirst = Mathf.Clamp(currentThirst + value, 0, maxThirst);
+    }
+
+    public void AddCurrentMentality(float value)
+    {
+        currentMentality = Mathf.Clamp(currentMentality + value, 0, maxMentality);
+    }
+
+    public void AddCurrentCold(float value)
+    {
+        currentCold = Mathf.Clamp(currentCold + value, 0, maxCold);
+    }
+
+    #endregion
+
+    #region 체력
+
+    /// <summary>
+    /// 데미지 적용
+    /// </summary>
+    public void TakeDamage(float damage)
+    {
+        currentHp -= damage;
+
+        if (currentHp <= 0)
+        {
+            currentHp = 0;
+            isDead = true;
+        }
+    }
+
+    /// <summary>
+    /// 체력 회복
+    /// </summary>
+    public void Heal(float amount)
+    {
+        currentHp = Mathf.Clamp(currentHp + amount, 0, maxHp);
+    }
+
+    #endregion
 }
