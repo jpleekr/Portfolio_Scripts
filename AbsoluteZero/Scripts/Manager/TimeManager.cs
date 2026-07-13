@@ -108,7 +108,7 @@ public class TimeManager : SingletonBehaviour<TimeManager>
         GameRecode.instance.AddRecord(GameRecordEvent.SurvivedTime, hour * 3600);
 
 		// 날짜 변경 처리
-		if (gameHour > 24)
+		if (gameHour >= 24)
 		{
 			gameDay += gameHour / 24;
 			gameHour = gameHour % 24;
@@ -126,13 +126,13 @@ public class TimeManager : SingletonBehaviour<TimeManager>
         GameRecode.instance.AddRecord(GameRecordEvent.SurvivedTime, minute * 60);
 
 		// 시간이 넘어가는 경우 처리
-		if (gameMinute > 60)
+		if (gameMinute >= 60)
 		{
 			gameHour += gameMinute / 60;
 			gameMinute = gameMinute % 60;
 
 			// 날짜 변경 처리
-			if (gameHour > 24)
+			if (gameHour >= 24)
 			{
 				gameDay += gameHour / 24;
 				gameHour = gameHour % 24;
