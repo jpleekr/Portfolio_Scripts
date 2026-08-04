@@ -91,6 +91,7 @@ public class PlayerControll : MonoBehaviour
     public PlayerLoggingState loggingState;
     #endregion
 
+    // 플레이어 초기화
     private void Start()
     {
         anim = GetComponent<Animator>();
@@ -118,6 +119,7 @@ public class PlayerControll : MonoBehaviour
         PlayerManager.Instance.PlayerSetPos();
     }
 
+    // 플레이어 입력 및 상태 업데이트
     private void Update()
     {
         if (PlayerManager.Instance.playerFreeze)
@@ -175,11 +177,13 @@ public class PlayerControll : MonoBehaviour
         FollowCamera();
     }
 
+    // 필요한 컴포넌트를 초기화
     private void InitComponent()
     {
         characterController = GetComponent<CharacterController>();
     }
 
+    // 플레이어 사망 처리
     public void PlayerDying()
     {
         PlayerManager.Instance.SetPlayerFreeze(true);
@@ -192,6 +196,7 @@ public class PlayerControll : MonoBehaviour
         cameraTransform.localRotation = Quaternion.Euler(45, cameraTransform.rotation.y, cameraTransform.rotation.z);
     }
 
+    // 상태 머신과 모든 플레이어 상태를 생성 및 초기화
     private void InitState()
     {
         stateMachine = new PlayerStateMachine();
@@ -218,6 +223,7 @@ public class PlayerControll : MonoBehaviour
         stateMachine.InitState(idleState);
     }
 
+    // 마우스 입력을 이용한 플레이어 및 카메라 회전 처리
     private void HandleMouseLook()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
@@ -231,11 +237,13 @@ public class PlayerControll : MonoBehaviour
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, transform.eulerAngles.y, 0f);
     }
 
+    // 카메라를 목표 위치로 이동
     private void FollowCamera()
     {
         cameraTransform.position = currentCameraPosition;
     }
 
+    // 현재 위치가 미끄러지는 경사인지 판별
     public bool IsOnSteepSlope()
     {
 
@@ -248,6 +256,7 @@ public class PlayerControll : MonoBehaviour
         return false;
     }
 
+    // 앉기 시점으로 카메라 전환
     public void ChangeCameraCrouch()
     {
         if (cameraPosType == 1) return;
@@ -258,6 +267,7 @@ public class PlayerControll : MonoBehaviour
         anim.SetBool("IsCrouch", true);
     }
 
+    // 기본 시점으로 카메라 전환
     public void ChangeCameraStand()
     {
         if (cameraPosType == 0) return;
@@ -268,6 +278,7 @@ public class PlayerControll : MonoBehaviour
         anim.SetBool("IsCrouch", false);
     }
 
+    // 총기 장착 시점으로 카메라 전환
     public void ChangeCameraStandRifle()
     {
         if (cameraPosType == 2) return;
@@ -278,6 +289,7 @@ public class PlayerControll : MonoBehaviour
         anim.SetBool("IsCrouch", false);
     }
 
+    // 앉은 총기 시점으로 카메라 전환
     public void ChangeCameraCrouchRifle()
     {
         if (cameraPosType == 1) return;
@@ -288,6 +300,7 @@ public class PlayerControll : MonoBehaviour
         anim.SetBool("IsCrouch", true);
     }
 
+    // 총알 소비, 피격 판정, 이펙트 및 사운드를 처리
     public void FireRifleBullet()
     {
         if (TetrisSlot.instanceSlot.itemCountDict[11] > 0)
@@ -362,6 +375,7 @@ public class PlayerControll : MonoBehaviour
         Debug.DrawLine(origin, closestHit.point, Color.red, 1f); // 디버그용
     }
 
+    // 벌목 상태를 시작하거나 종료
     public void PlayerLoggingTree(bool value)
     {
         cameraPosType = 3;
@@ -375,6 +389,7 @@ public class PlayerControll : MonoBehaviour
         }
     }
 
+    // 벌목 타격음을 일정 시간 후 재생
     IEnumerator LoggingSound()
     {
         yield return new WaitForSeconds(0.8f);
@@ -382,6 +397,7 @@ public class PlayerControll : MonoBehaviour
         SoundManager.Instance.PlayWeaponSound(SoundManager.WeaponType.Hit);
     }
 
+    // 총알 Ray를 Scene 뷰에서 시각화
     private void OnDrawGizmos()
     {
         if (cameraTransform == null) return;
@@ -390,6 +406,7 @@ public class PlayerControll : MonoBehaviour
         Gizmos.DrawRay(cameraTransform.transform.position, cameraTransform.transform.forward * rifleRange);
     }
 
+    // 총기 장착 상태를 전환
     public void ToggleRifle()
     {
         // FireRifleBullet();
@@ -411,6 +428,7 @@ public class PlayerControll : MonoBehaviour
         }
     }
 
+    // 플레이어의 이동 거리를 기록
     private void TrackDistanceMoved()
     {
         Vector3 currentPosition = transform.position;
