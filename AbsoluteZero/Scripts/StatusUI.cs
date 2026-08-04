@@ -6,7 +6,7 @@ public class StatusUI : MonoBehaviour
 	// 플레이어 상태 UI
 	[SerializeField] private Image uiPlayerHpBar;
 	[SerializeField] private Image uiPlayerHungerBar;
-	[SerializeField] private Image uiPlayerTirstBar;
+	[SerializeField] private Image uiPlayerThirstBar;
 	[SerializeField] private Image uiPlayerMentalityBar;
 	[SerializeField] private Image uiPlayerColdBar;
 
